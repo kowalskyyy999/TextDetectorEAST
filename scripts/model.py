@@ -60,7 +60,7 @@ class Decoder(nn.Module):
                 nn.ReLU())
 
 class EAST(nn.Module):
-    def __init__(self, pretrained = False, scope = 1024, batch_norm=True):
+    def __init__(self, pretrained = False, scope = 1024):
         super(EAST, self).__init__()
 
         self.encoder = VGG16BN(pretrained=pretrained)
@@ -94,21 +94,3 @@ class EAST(nn.Module):
     def QUAD_geo():
         return nn.Conv2d(32, 8, 1)
 
-if __name__ == "__main__":
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    
-    x = torch.rand(3, 1200, 1600)
-    x = x.unsqueeze(0)
-    x = x.to(device)
-
-    model = EAST(batch_norm=True).to(device)
-    score, geo = model(x)
-
-    print("Geometric Shape:", geo.shape)
-    print("Score Shape:", score.shape)
-
-
-
-    # if device == 'cuda':   
-    #     torch.cuda.empty_cache()
-    #     torch.cuda.reset_max_memory_allocated()

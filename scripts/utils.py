@@ -276,55 +276,5 @@ def Resize(df, w, h, w_r, h_r):
     
     return x, y, w, h
 
-def main():
-    path = '/home/kowlsss/Desktop/tutorial/torch/east/data/MSRA-TD500'
-    train_path = os.path.join(path, 'train')
-
-    train_df = extract2df(train_path)
-    train_df.drop_duplicates(['image', 'index', 'difficult'], inplace=True)
-
-    train_df['corners'] = train_df.apply(lambda df: get_corners([df.x, df.y, df.w, df.h]), axis=1)
-    train_df['new_corners'] = train_df.apply(lambda df: move_points(df.corners, df.cx, df.cy, df.degree), axis=1)
-
-    image_unique = train_df['image'].unique()
-    ids = np.random.randint(len(image_unique))
-
-    image_name = image_unique[ids]
-    image = cv2.imread(os.path.join(train_path, f'{image_name}.JPG'))
-    H, W, _ = image.shape
-    # img = Image.fromarray(image)
-
-    mask = np.zeros((H, W))
-    df_select = train_df[train_df['image'] == image_name]
-    plt.figure(figsize=(15, 12))
-    
-    fig, ax = plt.subplots(1, 2, figsize=(15, 20))
-    
-    vertices = [] 
-    angles = []
-    scale = 0.25
-    length = (W, H)
-
-    for df in df_select.values:
-        points = np.array(df[-1]).reshape((-1, 1, 2))
-
-        cv2.polylines(image, [points], True, (0, 0, 255), 5)
-
-        mask = get_mask(mask, points)
-        src_pts = points.astype('float32')
-        dst_pts = np.array([[0, df[6] - 1],
-                        [0, 0],
-                        [df[5] - 1, 0],
-                        [df[5] - 1, df[6] - 1]], dtype="float32")
-
-        M = cv2.getPerspectiveTransform(src_pts, dst_pts)
-        warped = cv2.warpPerspective(image, M, (df[6], df[5]))
-        
-        angles.append(df[8])
-        vertices.append(get_vertices(df[-1]))
-   
-    print(get_score_geo(image, vertices, angles, scale, length))
-
-
 if __name__ == "__main__":
-    main()
+    pass

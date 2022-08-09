@@ -83,17 +83,12 @@ class MSRADataset(Dataset):
             angles.append(d[8])
 
         return vertices, angles, mask
-
-if __name__ == "__main__":
-    transform = T.Compose([
-        T.ToTensor()
-    ])
-    train_path = "/home/kowlsss/Desktop/tutorial/torch/east/data/MSRA-TD500/train"
-    train_dataset = MSRADataset(path=train_path, transform=transform)
     
-    for data in train_dataset:
-        print("Geometric GT shape:", data[-1].shape)
-        print("Score GT shape:", data[2].shape)
-        # print(data[0].shape)
-        # print(data[-1].shape)
-        break
+def collate_fn(batch):
+    (image, mask, score, geo) = list(zip(*batch))
+    image_pad = pad_sequence(image, batch_first=True)
+    score_pad = pad_sequence(score, batch_first=True)
+    geo_pad = pad_sequence(geo, batch_first=True)
+    
+    return image_pad, score_pad, geo_pad
+
