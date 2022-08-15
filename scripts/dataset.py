@@ -9,8 +9,9 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as T
+from torch.nn.utils.rnn import pad_sequence
 
-from utils import *
+from scripts.utils import *
 
 class MSRADataset(Dataset):
     def __init__(self,
@@ -54,7 +55,7 @@ class MSRADataset(Dataset):
         mask_tensor = self.mask_transform(mask)
         # mask_tensor shape (1, H, W)
 
-        if transform:
+        if self.transform:
             image = self.transform(image_resize)
 
         return image, mask_tensor, score_tensor, geo_tensor

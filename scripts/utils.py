@@ -1,11 +1,16 @@
 import os
 import cv2
+import sys
 import math
 import collections
 import numpy as np
 import pandas as pd
 from PIL import Image
 import matplotlib.pyplot as plt
+
+import logging
+import time
+from datetime import datetime 
 
 def extract_data(path):
     gt_file = img_file = []
@@ -276,5 +281,39 @@ def Resize(df, w, h, w_r, h_r):
     
     return x, y, w, h
 
-if __name__ == "__main__":
-    pass
+
+class Logger:
+    def __init__(self, mode="Training") -> None:
+        self.mode = mode
+    
+    def cwd(self):
+        pwd = os.getcwd()
+        return os.path.join(pwd, 'logs')
+
+    def __call__(self, file="train-logs"):
+        timeString = time.strftime("%Y%m%d-%H%M%s", time.localtime())
+        pwd = self.cwd()
+        if not os.path.exists(pwd):
+            os.makedirs(pwd)
+
+        if self.mode == "Training":
+            return logging.basicConfig(
+                level=logging.INFO,
+                format="%(asctime)s [%(levelname)s] %(message)s",
+                handlers=[
+                    logging.FileHandler(os.path.join(pwd, file + "-" + timeString + ".out")),
+                    logging.StreamHandler(sys.stdout)
+                ]
+            )
+        elif self.mode == "Inference":
+            return logging.basicConfig(
+                level=logging.INFO,
+                format="%(asctime)s [%(levelname)s] %(message)s",
+                handlers=[
+                    logging.FileHandler(os.path.join(pwd, file + ".out")),
+                    logging.StreamHandler(sys.stdout)
+                ]
+            )
+        
+        else:
+            sys.exit("Mode must be Initialize")

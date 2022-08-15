@@ -1,7 +1,10 @@
 from tqdm import tqdm 
+import numpy as np
+import logging
+import torch
 
 class Engine(object):
-    def __init__(self, model, optimizer, criterion, Epochs=100, Device='cpu', earlyStop=False, save=True, name_model="model.pth"):
+    def __init__(self, model, optimizer, criterion, Epochs=100, Device='cpu', earlyStop=False, save=False, name_model="model.pth"):
         self.model = model
         self.optimizer = optimizer
         self.criterion = criterion
@@ -41,9 +44,11 @@ class Engine(object):
                 trainLoss += loss.item() * img.size(0)
             
             trainLoss = trainLoss / len(trainLoader.dataset)
+            logging.info(f"Epoch: {epoch + 1} - Training Loss : {trainLoss}")
 
             if valLoader is not None:
                 valLoss = self.evaluation(valLoader, epoch)
+                logging.info(f"Epoch: {epoch + 1} - Validation Loss : {valLoss}")
                 
                 if epoch > 5 and self.valLoss > valLoss:
                     self.valLoss = valLoss
@@ -65,13 +70,15 @@ class Engine(object):
                     
                     # Save Checkpoint
                     torch.save(checkpoint, self.name_model)
+                    logging.info(f"Saving the model in {self.model} checkpoint")
                     
                     # Reset for earlyStopping
                     self.no_improve = 0
                     
             # Early Stopping                    
             if epoch > 5 and self.earlyStop == self.no_improve:
-                print("Early Stopping")
+                logging.error("Early Stopping")
+                logging.info("Training Stopped")
                 break
             
             else:
